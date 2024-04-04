@@ -1,113 +1,175 @@
-import Image from "next/image";
+"use client"
+import { useEffect, useState } from "react"
+import { v4 as uuidv4 } from "uuid"
+
+import Result from "@/components/Result"
+import Spinner from "@/components/Spinner"
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+	const [data, setData] = useState<object[]>([])
+	const [userInput, setUserInput] = useState<string>("")
+	const [autoSuggestToken, setAutoSuggestToken] = useState<string>("")
+	const [status, setstatus] = useState<string>("")
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [suggestedCities, setSuggestedCities] = useState<object[]>([])
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+	const getPlaces = async (textQuery: string) => {
+		if (textQuery === "") return
+		setData([])
+		setIsLoading(true)
+		setstatus(`Attempting to search for places with input of "${textQuery}"`)
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+		let fetchedPlaces: any[] = []
+		let nextPageToken = null
+		let fetchingDone = false
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+		while (!fetchingDone) {
+			const response: any = await fetch(nextPageToken ? `/api/places/${nextPageToken}/${textQuery}` : `/api/places/null/${textQuery}`)
+			const data = await response.json()
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+			console.log(data)
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+			if (data) {
+				if (data.next_page_token) {
+					console.log("TOKEN EXISTS!!")
+					nextPageToken = data.next_page_token
+				} else fetchingDone = true
+
+				fetchedPlaces = [...fetchedPlaces, ...data.results]
+			} else {
+				console.log("ERROR: no places found")
+				console.log(data)
+				fetchingDone = true
+			}
+		}
+
+		setstatus(`Found ${fetchedPlaces.length} places for "${textQuery}"`)
+		setIsLoading(false)
+		setData(fetchedPlaces)
+	}
+
+	const getCitySuggestions = async (textQuery: string) => {
+		if (textQuery === "") return
+
+		const response: any = await fetch(`/api/autocomplete/(cities)/${textQuery}/${autoSuggestToken}`)
+		const data = await response.json()
+
+		if (data.predictions)
+			setSuggestedCities(
+				data.predictions.map((x: any) => {
+					return { label: x.description, place_id: x.place_id }
+				})
+			)
+		else setSuggestedCities([])
+	}
+
+	const getHotelsInCity = async (place_id: string) => {
+		console.log("Getting hotels in city with place_id: " + place_id)
+		const response: any = await fetch(`/api/detail/${place_id}`)
+		const data = await response.json()
+
+		console.log("Place Detail Found")
+		console.log(data)
+
+		const hotelLocation = data.location || null
+
+		if (hotelLocation) {
+			const longLat = `${hotelLocation.latitude},${hotelLocation.longitude}`
+			console.log("Hotel location: ", longLat)
+
+			let fetchedHotels: any[] = []
+			let nextPageToken = null
+			let fetchingDone = false
+			let counter = 0
+
+			while (!fetchingDone) {
+				counter++
+				const response: any = await fetch(nextPageToken ? `/api/nearby/${nextPageToken}/null` : `/api/nearby/null/${longLat}`)
+				const data = await response.json()
+
+				if (data) {
+					if (data.next_page_token) {
+						nextPageToken = data.next_page_token
+						console.log("Pausing for 2 seconds") // Without a pause the next fetch will return INVALID_REQUEST
+						await new Promise((resolve) => setTimeout(resolve, 2000))
+					} else {
+						fetchingDone = true
+					}
+
+					fetchedHotels = [...fetchedHotels, ...data.results]
+				} else {
+					console.log("ERROR: no places found")
+					console.log(data)
+					fetchingDone = true
+				}
+				console.log(counter + " Single Fetch Done")
+				console.log(data)
+				setData(fetchedHotels)
+			}
+			setData(fetchedHotels)
+			// now get all hotels within this location with a radius of
+		} else {
+			console.log("ERROR: no location found")
+		}
+	}
+
+	useEffect(() => {
+		console.log(suggestedCities)
+	}, [suggestedCities])
+
+	return (
+		<main className="flex min-h-screen flex-col items-center justify">
+			<h1 className="text-2xl p-4">Google Hotel Finder</h1>
+			<div className="flex flex-row gap-1 w-full justify-center">
+				<input
+					type="text"
+					placeholder="Enter a location to search for hotels"
+					value={userInput}
+					className="w-1/2 border border-black rounded-md p-[5.5px]"
+					onFocus={() => {
+						if (autoSuggestToken === "") setAutoSuggestToken(uuidv4())
+					}}
+					onBlur={() => {
+						setAutoSuggestToken("")
+						setTimeout(() => setSuggestedCities([]), 500)
+					}}
+					onChange={(event) => {
+						setUserInput(event.target.value)
+						if (event.target.value.length > 3) getCitySuggestions(userInput)
+					}}
+				/>
+			</div>
+			{suggestedCities.length > 0 && (
+				<div className="w-1/2 border border-black rounded-md flex flex-col">
+					{suggestedCities.map((x, i) => {
+						return (
+							<div key={i} className="flex p-1 hover:bg-slate-200 rounded-md">
+								<button
+									className="flex flex-col justify-start w-full m-1"
+									onClick={() => {
+										getHotelsInCity(x["place_id" as keyof typeof x])
+										setUserInput(x["label" as keyof typeof x])
+										setSuggestedCities([])
+									}}
+								>
+									<h1 className="font-bold">{x["label" as keyof typeof x]}</h1>
+								</button>
+							</div>
+						)
+					})}
+				</div>
+			)}
+
+			<div className="flex flex-row items-center p-4">
+				{isLoading && <Spinner />}
+				<h1 className="text-xl">{status}</h1>
+			</div>
+
+			<div className="w-full">
+				{data.map((x, i) => (
+					<Result key={i} result={x} />
+				))}
+			</div>
+		</main>
+	)
 }
