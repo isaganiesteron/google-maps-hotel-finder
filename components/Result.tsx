@@ -26,6 +26,7 @@ const Result = ({ result }: { result: object }) => {
 		setPhotosLoading(false)
 	}
 
+	console.log(result)
 	const businessName = result["name" as keyof typeof result]
 	const photos = result["photos" as keyof typeof result] as object[] // Update the type of photos array
 
@@ -35,6 +36,7 @@ const Result = ({ result }: { result: object }) => {
 				<p className="text-[30px] font-bold">{businessName}</p>
 				<p>Address: {result["formattedAddress" as keyof typeof result]}</p>
 				<p>{`Rating: ${result["rating" as keyof typeof result]} (${result["user_ratings_total" as keyof typeof result]} ratings)`}</p>
+				<p>Types: {JSON.stringify(result["types" as keyof typeof result])}</p>
 			</div>
 			<div>
 				<div className="flex flex-row gap-3  items-center">
