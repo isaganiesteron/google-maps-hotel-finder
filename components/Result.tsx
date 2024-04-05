@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import Spinner from "@/components/Spinner"
 
-const Result = ({ result }: { result: object }) => {
+const Result = ({ result, index }: { result: object; index: number }) => {
 	const [photoUrls, setPhotoUrls] = useState<string[]>([])
 	const [photosLoading, setPhotosLoading] = useState<boolean>(false)
 
@@ -25,18 +25,16 @@ const Result = ({ result }: { result: object }) => {
 		setPhotoUrls(photoUrls)
 		setPhotosLoading(false)
 	}
-
-	console.log(result)
 	const businessName = result["name" as keyof typeof result]
 	const photos = result["photos" as keyof typeof result] as object[] // Update the type of photos array
+	const types = result["types" as keyof typeof result] as string[] // Update the type of types array
 
 	return (
 		<div className="p-2 m-1 flex flex-col border border-black rounded-md gap-5">
 			<div>
-				<p className="text-[30px] font-bold">{businessName}</p>
-				<p>Address: {result["formattedAddress" as keyof typeof result]}</p>
+				<p className="text-[30px] font-bold">{`${index + 1}) ${businessName}`}</p>
 				<p>{`Rating: ${result["rating" as keyof typeof result]} (${result["user_ratings_total" as keyof typeof result]} ratings)`}</p>
-				<p>Types: {JSON.stringify(result["types" as keyof typeof result])}</p>
+				<p>Types: {types.join(", ")}</p>
 			</div>
 			<div>
 				<div className="flex flex-row gap-3  items-center">

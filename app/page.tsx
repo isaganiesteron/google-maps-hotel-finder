@@ -80,10 +80,8 @@ export default function Home() {
 			let fetchedHotels: any[] = []
 			let nextPageToken = null
 			let fetchingDone = false
-			let counter = 0
 
 			while (!fetchingDone) {
-				counter++
 				const response: any = await fetch(nextPageToken ? `/api/nearby/${nextPageToken}/null` : `/api/nearby/null/${longLat}`)
 				const data = await response.json()
 
@@ -95,15 +93,12 @@ export default function Home() {
 					} else {
 						fetchingDone = true
 					}
-
 					fetchedHotels = [...fetchedHotels, ...data.results]
 				} else {
 					console.log("ERROR: no places found")
 					console.log(data)
 					fetchingDone = true
 				}
-				console.log(counter + " Single Fetch Done")
-				console.log(data)
 				setData(fetchedHotels)
 			}
 			setData(fetchedHotels)
@@ -112,10 +107,6 @@ export default function Home() {
 			console.log("ERROR: no location found")
 		}
 	}
-
-	useEffect(() => {
-		console.log(suggestedCities)
-	}, [suggestedCities])
 
 	return (
 		<main className="flex min-h-screen flex-col items-center justify">
@@ -167,7 +158,7 @@ export default function Home() {
 
 			<div className="w-full">
 				{data.map((x, i) => (
-					<Result key={i} result={x} />
+					<Result key={i} result={x} index={i} />
 				))}
 			</div>
 		</main>
