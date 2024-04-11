@@ -36,7 +36,7 @@ const Result = ({ result, index }: { result: object; index: number }) => {
 				<p>{`Rating: ${result["rating" as keyof typeof result]} (${result["user_ratings_total" as keyof typeof result]} ratings)`}</p>
 				<p>Types: {types.join(", ")}</p>
 			</div>
-			<div>
+			{/* <div>
 				<div className="flex flex-row gap-3  items-center">
 					<p className="text-[20px] font-bold">Photos:</p>
 					<button className="text-xs border border-black rounded-md p-1 bg-green-100 hover:bg-green-300" onClick={() => _handleGetPhotos(photos)}>
@@ -59,7 +59,7 @@ const Result = ({ result, index }: { result: object; index: number }) => {
 						})}
 					</div>
 				)}
-			</div>
+			</div> */}
 		</div>
 	)
 }

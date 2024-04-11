@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 
 import Result from "@/components/Result"
@@ -13,40 +13,39 @@ export default function Home() {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [suggestedCities, setSuggestedCities] = useState<object[]>([])
 
-	const getPlaces = async (textQuery: string) => {
-		if (textQuery === "") return
-		setData([])
-		setIsLoading(true)
-		setstatus(`Attempting to search for places with input of "${textQuery}"`)
+	// const getPlaces = async (textQuery: string) => {
+	// 	if (textQuery === "") return
+	// 	setData([])
+	// 	setIsLoading(true)
+	// 	setstatus(`Attempting to search for places with input of "${textQuery}"`)
 
-		let fetchedPlaces: any[] = []
-		let nextPageToken = null
-		let fetchingDone = false
+	// 	let fetchedPlaces: any[] = []
+	// 	let nextPageToken = null
+	// 	let fetchingDone = false
 
-		while (!fetchingDone) {
-			const response: any = await fetch(nextPageToken ? `/api/places/${nextPageToken}/${textQuery}` : `/api/places/null/${textQuery}`)
-			const data = await response.json()
+	// 	while (!fetchingDone) {
+	// 		const response: any = await fetch(nextPageToken ? `/api/places/${nextPageToken}/${textQuery}` : `/api/places/null/${textQuery}`)
+	// 		const data = await response.json()
 
-			console.log(data)
+	// 		console.log(data)
 
-			if (data) {
-				if (data.next_page_token) {
-					console.log("TOKEN EXISTS!!")
-					nextPageToken = data.next_page_token
-				} else fetchingDone = true
+	// 		if (data) {
+	// 			if (data.next_page_token) {
+	// 				nextPageToken = data.next_page_token
+	// 			} else fetchingDone = true
 
-				fetchedPlaces = [...fetchedPlaces, ...data.results]
-			} else {
-				console.log("ERROR: no places found")
-				console.log(data)
-				fetchingDone = true
-			}
-		}
+	// 			fetchedPlaces = [...fetchedPlaces, ...data.results]
+	// 		} else {
+	// 			console.log("ERROR: no places found")
+	// 			console.log(data)
+	// 			fetchingDone = true
+	// 		}
+	// 	}
 
-		setstatus(`Found ${fetchedPlaces.length} places for "${textQuery}"`)
-		setIsLoading(false)
-		setData(fetchedPlaces)
-	}
+	// 	setstatus(`Found ${fetchedPlaces.length} places for "${textQuery}"`)
+	// 	setIsLoading(false)
+	// 	setData(fetchedPlaces)
+	// }
 
 	const getCitySuggestions = async (textQuery: string) => {
 		if (textQuery === "") return
@@ -64,7 +63,6 @@ export default function Home() {
 	}
 
 	const getHotelsInCity = async (place_id: string) => {
-		console.log("Getting hotels in city with place_id: " + place_id)
 		const response: any = await fetch(`/api/detail/${place_id}`)
 		const data = await response.json()
 
@@ -74,8 +72,8 @@ export default function Home() {
 		const hotelLocation = data.location || null
 
 		if (hotelLocation) {
+			setstatus(`Attempting to search for hotels in ${place_id}.`)
 			const longLat = `${hotelLocation.latitude},${hotelLocation.longitude}`
-			console.log("Hotel location: ", longLat)
 
 			let fetchedHotels: any[] = []
 			let nextPageToken = null
@@ -101,6 +99,8 @@ export default function Home() {
 				}
 				setData(fetchedHotels)
 			}
+
+			setstatus(`Found ${fetchedHotels.length} hotels in "${userInput}"`)
 			setData(fetchedHotels)
 			// now get all hotels within this location with a radius of
 		} else {
